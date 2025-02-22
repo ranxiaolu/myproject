@@ -19,8 +19,8 @@ func CreateOrder(ctx context.Context, c *app.RequestContext) {
 	//定义一个结构体 orderData 来绑定请求的 JSON 数据，该结构体包含产品列表
 	var orderData struct {
 		Products []struct {
-			ProductID string `json:"product_id"`
-			Quantity  int    `json:"quantity"`
+			ProductID uint `json:"product_id"`
+			Quantity  int  `json:"quantity"`
 		} `json:"products"`
 	}
 	//绑定数据到orderData

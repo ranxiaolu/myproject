@@ -4,6 +4,7 @@ import (
 	//"context"
 	//"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/hertz-contrib/cors"
 	"go.uber.org/zap"
 	"log"
 	"myproject/api"
@@ -20,24 +21,18 @@ func main() {
 		}
 	}()
 	h := server.Default() // 创建engine
-	//h.Use(func(c *hertz.Context) {
-	//	logger.Info("Request received",
-	//		zap.String("method", c.Request.Method),
-	//		zap.String("path", c.Request.URL.Path),
-	//	)
-	//	c.Next()
-	//})
-	// 自定义日志中间件
-	//h.Use(func(c context.Context, ctx *app.RequestContext) {
-	//	logger.Info("Request received",
-	//		zap.String("method", ctx.Request.Method),
-	//		zap.String("path", ctx.Request.URI().Path()),
-	//	)
-	//	ctx.Next(c)
-	//})
 
 	// 允许跨域请求
 	//h.Use(middleware.CORS())
+	// 配置 CORS 中间件（允许所有来源）
+	h.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"}, // 允许所有域名
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
+
 	//配置用户相关路由
 	//注册
 	h.POST("user/register", api.RegisterUser)
@@ -56,7 +51,7 @@ func main() {
 	//列出商品信息
 	h.GET("product/list", api.GetProductList)
 	//搜索商品
-	h.GET("book/search/:product_name", middleware.AuthMiddleware(), api.GetProductDetails)
+	h.GET("book/search/:product_name", middleware.AuthMiddleware(), api.SearchProduct)
 	//商品添加到购物车
 	h.PUT("product/addCart", middleware.AuthMiddleware(), api.AddProductTOCart)
 	//获取购物车列表

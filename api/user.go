@@ -21,7 +21,7 @@ func RegisterUser(ctx context.Context, c *app.RequestContext) {
 	//注册
 	if err := service.RegisterUser(user, password); err != nil {
 		c.JSON(500, map[string]string{"error": err.Error()}) //表示服务器端错误的响应状态码，
-		// 比如服务端在处理请求时遇到了一些错误。
+		// 比如服务端在处理请求时遇到了一些错误
 		return
 	}
 	c.JSON(http.StatusOK, map[string]string{"status": "10000", "info": "success"})

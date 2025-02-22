@@ -13,7 +13,7 @@ import "myproject/model"
 //	}
 //
 // 查看商品是否存在
-func AddProductTOCart(productID string) error {
+func AddProductTOCart(productID uint) error {
 	db := GetDB()
 	var product model.Product
 	//查询商品是否存在

@@ -8,11 +8,11 @@ type Order struct {
 	Address    string      `json:"address"`
 	TotalPrice float64     `json:"total"`
 	User       User        `gorm:"foreignKey:UserID"` // 关联用户模型
-	OrderItems []OrderItem `json:"-" gorm:"OrderID"`
+	OrderItems []OrderItem `gorm:"foreignKey:OrderID"`
 }
 type OrderItem struct {
 	gorm.Model
-	OrderID   uint    `gorm:"index;noyNull;" json:"order_id"`
+	OrderID   uint    `gorm:"index;notNull"`
 	ProductID uint    `gorm:"index;notNull" json:"product_id"`
 	Product   Product `gorm:"foreignKey:ProductID"` // 关联产品模型
 	Quantity  int     `json:"quantity"`

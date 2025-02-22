@@ -15,16 +15,25 @@ func GetProducts() ([]model.Product, error) {
 	}
 	return products, nil
 }
-func GetProductDetails(productName string) (model.Product, error) {
+func SearchProduct(productName string) (model.Product, error) {
 	db := dao.GetDB()
 	var product model.Product
-	result := db.First(&product, "product_name = ?", productName)
+	result := db.Where("product_name = ?", productName).Find(&product)
 	if result.Error != nil {
 		return product, result.Error
 	}
 	return product, nil
 }
-func AddProductTOCart(productID string, quantity int) error {
+func GetProductDetails(Name uint) (model.Product, error) {
+	db := dao.GetDB()
+	var product model.Product
+	result := db.First(&product, "name = ?", Name)
+	if result.Error != nil {
+		return product, result.Error
+	}
+	return product, nil
+}
+func AddProductTOCart(productID uint, quantity int) error {
 	var cartItem model.CartItem
 	db := dao.GetDB()
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"myproject/model"
 )
 
@@ -30,6 +31,9 @@ func init() {
 	if err != nil {
 		panic(err) // 避免静默失败
 	}
+	//检查 GORM 日志以获取详细错误信息：
+	db.Logger = db.Logger.LogMode(logger.Info)
+
 }
 
 func GetDB() *gorm.DB {
