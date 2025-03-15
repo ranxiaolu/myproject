@@ -23,7 +23,7 @@ func GetProductList(ctx context.Context, c *app.RequestContext) {
 
 // SearchProduct 搜索商品
 func SearchProduct(ctx context.Context, c *app.RequestContext) {
-	productName := c.Query("product_name")
+	productName := c.Param("product_name")
 	products, err := service.SearchProduct(productName)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"info": err.Error()})

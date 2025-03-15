@@ -7,7 +7,7 @@ import (
 )
 
 func CreateOrder(userID uint, products []model.Product) (string, error) {
-	db := dao.GetDB()
+	db := dao.DB
 	var order model.Order
 	orders := model.Order{
 		UserID:     userID,
@@ -17,7 +17,7 @@ func CreateOrder(userID uint, products []model.Product) (string, error) {
 	//查询用户是否存在,并将用户订单信息放到order中
 	result := db.First(&orders, "user_id = ?", userID)
 	if result.RowsAffected == 0 {
-		return "user not found", result.Error
+		return " ", result.Error
 	}
 	//orders := model.Order{
 	//	UserId:     userID,

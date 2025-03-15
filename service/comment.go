@@ -8,7 +8,7 @@ import (
 )
 
 func GetComment(productID uint) ([]model.Comment, error) {
-	db := dao.GetDB()
+	db := dao.DB
 	var comments []model.Comment
 	result := db.Where("product_id = ?", productID).Find(&comments)
 	if result.Error != nil {
@@ -17,8 +17,12 @@ func GetComment(productID uint) ([]model.Comment, error) {
 	return comments, nil
 }
 func AddComment(userID uint, productID uint, content string) (string, error) {
-	db := dao.GetDB()
-
+	db := dao.DB
+	//
+	var product model.Product
+	if result := db.First(&product, "ID=?", productID); result.Error != nil {
+		return "", errors.New("product not found")
+	}
 	comment := model.Comment{
 		ProductID: productID,
 		UserID:    userID,
@@ -26,12 +30,12 @@ func AddComment(userID uint, productID uint, content string) (string, error) {
 	}
 	result := db.Create(&comment)
 	if result.Error != nil {
-		return "wrong", result.Error
+		return " ", result.Error
 	}
 	return strconv.Itoa(int(comment.ID)), nil
 }
 func DeleteComment(commentID string) error {
-	db := dao.GetDB()
+	db := dao.DB
 	comment := model.Comment{}
 	// 使用 Where 删除指定 ID 的记录
 	result := db.Where("comment_id = ?", commentID).Delete(&comment)
@@ -46,7 +50,7 @@ func DeleteComment(commentID string) error {
 	return nil
 }
 func UpdateComment(commentID string, content string) error {
-	db := dao.GetDB()
+	db := dao.DB
 	comments := model.Comment{}
 	//查询评论是否存在,并将数据库内容返回到comments中
 	result := db.First(&comments, "id = ?", commentID)
@@ -63,10 +67,10 @@ func UpdateComment(commentID string, content string) error {
 	return nil
 }
 func PraiseComment(commentID string, Model int) error {
-	db := dao.GetDB()
+	db := dao.DB
 	comments := model.Comment{}
 	//查询评论是否存在,并将数据库内容返回到comments中
-	result := db.First(&comments, "id = ?", commentID)
+	result := db.First(&comments, "ID = ?", commentID)
 	if result.Error != nil {
 		return result.Error
 	}

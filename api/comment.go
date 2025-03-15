@@ -17,7 +17,7 @@ func GetComment(ctx context.Context, c *app.RequestContext) {
 	}
 	comments, err := service.GetComment(uint(productID))
 	if err != nil {
-		c.JSON(400, utils.H{"info": "wrong"})
+		c.JSON(400, utils.H{"info": err.Error()})
 	}
 	c.JSON(200, utils.H{"status": 10000, "info": "success", "comments": comments})
 }
@@ -29,6 +29,7 @@ func AddComment(ctx context.Context, c *app.RequestContext) {
 		Content string `json:"content"`
 		UserID  uint   `json:"user_id"`
 	}
+
 	if err := c.BindJSON(&commentData); err != nil {
 		c.JSON(http.StatusBadRequest, utils.H{"info": "invalid request"})
 		return

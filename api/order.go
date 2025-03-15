@@ -13,11 +13,10 @@ import (
 
 // CreateOrder 添加订单
 func CreateOrder(ctx context.Context, c *app.RequestContext) {
-	//从请求中获取用户 ID
-	userIDStr := c.GetString("user_id")
-	userID, _ := strconv.ParseUint(userIDStr, 10, 64)
+
 	//定义一个结构体 orderData 来绑定请求的 JSON 数据，该结构体包含产品列表
 	var orderData struct {
+		UserID   string `json:"user_id"`
 		Products []struct {
 			ProductID uint `json:"product_id"`
 			Quantity  int  `json:"quantity"`
@@ -28,6 +27,8 @@ func CreateOrder(ctx context.Context, c *app.RequestContext) {
 		c.JSON(http.StatusBadRequest, utils.H{"info": "invalid request"})
 		return
 	}
+
+	userID, _ := strconv.ParseUint(orderData.UserID, 10, 64)
 
 	var products []model.Product
 	//orderData 中的产品列表，调用 services.GetProductDetails 获取每个产品的详细信息。
