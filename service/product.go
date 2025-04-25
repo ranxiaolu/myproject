@@ -24,10 +24,10 @@ func SearchProduct(productName string) (model.Product, error) {
 	}
 	return product, nil
 }
-func GetProductDetails(Name uint) (model.Product, error) {
+func GetProductDetails(ProductID uint) (model.Product, error) {
 	db := dao.DB
 	var product model.Product
-	result := db.First(&product, "name = ?", Name)
+	result := db.Where("id = ?", ProductID).First(&product)
 	if result.Error != nil {
 		return product, result.Error
 	}
@@ -37,7 +37,7 @@ func AddProductTOCart(productID uint, quantity int) error {
 	var cartItem model.CartItem
 	db := dao.DB
 	var product model.Product
-	if result := db.First(&product, "ID=?", productID); result.Error != nil {
+	if result := db.Where("id = ?", productID).First(&product); result.Error != nil {
 		return errors.New("product not found")
 	}
 	//err := dao.AddProductTOCart(productID).Error

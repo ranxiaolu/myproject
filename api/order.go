@@ -8,7 +8,6 @@ import (
 	"myproject/model"
 	"myproject/service"
 	"net/http"
-	"strconv"
 )
 
 // CreateOrder 添加订单
@@ -16,10 +15,10 @@ func CreateOrder(ctx context.Context, c *app.RequestContext) {
 
 	//定义一个结构体 orderData 来绑定请求的 JSON 数据，该结构体包含产品列表
 	var orderData struct {
-		UserID   string `json:"user_id"`
+		UserID   uint `json:"user_id"`
 		Products []struct {
-			ProductID uint `json:"product_id"`
-			Quantity  int  `json:"quantity"`
+			ID     uint `json:"id"`
+			Number int  `json:"number"`
 		} `json:"products"`
 	}
 	//绑定数据到orderData
@@ -28,12 +27,12 @@ func CreateOrder(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	userID, _ := strconv.ParseUint(orderData.UserID, 10, 64)
+	userID := orderData.UserID
 
 	var products []model.Product
 	//orderData 中的产品列表，调用 services.GetProductDetails 获取每个产品的详细信息。
 	for _, item := range orderData.Products {
-		product, err := service.GetProductDetails(item.ProductID)
+		product, err := service.GetProductDetails(item.ID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, utils.H{"info": err.Error()})
 			return

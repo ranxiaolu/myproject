@@ -1,13 +1,18 @@
 package dao
 
 import (
+	"context"
+	"fmt"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"log"
 	"myproject/model"
 )
 
 var DB *gorm.DB
+var ctx = context.Background()
 
 func Init() {
 	dsn := "root:5201314@tcp(127.0.0.1:3306)/myshop?charset=utf8mb4&parseTime=True&loc=Local"
@@ -37,4 +42,18 @@ func Init() {
 	}
 	//检查 GORM 日志以获取详细错误信息：
 	DB.Logger = DB.Logger.LogMode(logger.Info)
+	// 连接 Redis
+	rdb := redis.NewClient(&redis.Options{ //创建 Redis 客户端
+		Addr:     "localhost:6379",
+		Password: "", // no password set
+		DB:       0,  // use default DB
+	})
+
+	// 确保连接成功
+	_, err = rdb.Ping(ctx).Result()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("MySQL and Redis connected successfully!")
 }

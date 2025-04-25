@@ -1,6 +1,9 @@
 package service
 
 import (
+	"errors"
+	"fmt"
+	"gorm.io/gorm"
 	"myproject/dao"
 	"myproject/model"
 	"strconv"
@@ -8,16 +11,22 @@ import (
 
 func CreateOrder(userID uint, products []model.Product) (string, error) {
 	db := dao.DB
-	var order model.Order
-	orders := model.Order{
-		UserID:     userID,
-		TotalPrice: 0.0,
-	}
 
 	//查询用户是否存在,并将用户订单信息放到order中
-	result := db.First(&orders, "user_id = ?", userID)
-	if result.RowsAffected == 0 {
-		return " ", result.Error
+	// 查询用户是否存在
+	var user model.User
+	result := db.Where("id = ?", userID).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return "", fmt.Errorf("user with ID %d not found", userID)
+	}
+	if result.Error != nil {
+		return "", result.Error
+	}
+
+	order := model.Order{
+		UserID:     userID,
+		TotalPrice: 0.0,
+		User:       user,
 	}
 	//orders := model.Order{
 	//	UserId:     userID,

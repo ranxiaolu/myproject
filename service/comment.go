@@ -36,9 +36,9 @@ func AddComment(userID uint, productID uint, content string) (string, error) {
 }
 func DeleteComment(commentID string) error {
 	db := dao.DB
-	comment := model.Comment{}
+	var comment = model.Comment{}
 	// 使用 Where 删除指定 ID 的记录
-	result := db.Where("comment_id = ?", commentID).Delete(&comment)
+	result := db.Where("id = ?", commentID).Delete(&comment)
 	// 检查是否有错误发生
 	if result.Error != nil {
 		return result.Error
@@ -66,20 +66,33 @@ func UpdateComment(commentID string, content string) error {
 	}
 	return nil
 }
-func PraiseComment(commentID string, Model int) error {
+func PraiseComment(commentID uint, Model int) error {
 	db := dao.DB
-	comments := model.Comment{}
-	//查询评论是否存在,并将数据库内容返回到comments中
-	result := db.First(&comments, "ID = ?", commentID)
-	if result.Error != nil {
-		return result.Error
-	}
-	//更新点赞点踩操作
-	comments.CommentModel = Model
 
-	result = db.Save(&comments)
+	comment := model.Comment{
+		CommentModel: Model,
+	}
+	//查询评论是否存在,并将数据库内容返回到comments中
+	result := db.Where("id = ?", commentID).First(&comment)
 	if result.Error != nil {
 		return result.Error
 	}
+	//更新model
+	if Model == 1 {
+		comment.PraiseCount++
+		comment.BadModel--
+		comment.CommentModel = 1
+	}
+	if Model == 2 {
+		comment.PraiseCount--
+		comment.BadModel++
+		comment.CommentModel = 2
+	}
+	//保存更新后的评论
+	result = db.Save(&comment)
+	if result.Error != nil {
+		return result.Error
+	}
+
 	return nil
 }

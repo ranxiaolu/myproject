@@ -121,20 +121,38 @@ func ChangePassword(username string, oldPassword string, newPassword string) err
 		return err
 	}
 
-	// 比较旧密码和用户输入的旧密码是否一致
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
-		return errors.New("password wrong")
-	}
+	//// 比较用户密码和用户输入的旧密码是否一致   数据库密码并未加密，导致冲突
+	//if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
+	//	return errors.New("password wrong")
+	//}
 	//// 更新密码 加密新密码
 	//hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
 	//if err != nil {
 	//	return err
 	//}
 	//user.Password = string(hashedPassword)
-	//保存到数据库
-	err := db.Where("username=?", user.Username).Update("password", newPassword).Error
+	////保存到数据库
+	//err = db.Model(&user).Where("username=?", user.Username).Update("password", newPassword).Error
+	//if err != nil {
+	//	return fmt.Errorf("数据库保存失败: %w", err)
+	//}
+	// 比较用户密码和用户输入的旧密码是否一致
+
+	//// 更新密码 加密新密码
+	//hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	//if err != nil {
+	//	return err
+	//}
+	//user.Password = string(hashedPassword)
+
+	if user.Password != oldPassword {
+		return errors.New("旧密码错误")
+	}
+
+	// 保存到数据库
+	err := db.Model(&user).Where("username=?", user.Username).Update("password", newPassword).Error
 	if err != nil {
-		return errors.New("数据库保存失败")
+		return fmt.Errorf("数据库保存失败: %w", err)
 	}
 
 	return nil
@@ -154,37 +172,34 @@ func GetUserInfo(userID string) (model.User, error) {
 // UpdateUserInfo 修改用户信息
 func UpdateUserInfo(user *model.User) error {
 	db := dao.DB
-	result := db.Model(user).Where("ID = ?", user.ID).Omit("password,username").Updates(user)
-	if result.RowsAffected == 0 {
-		return fmt.Errorf("don't have this user")
-	}
-	//err := db.Where("user_id = ? & password=?", user.ID, user.Password).First(&updateUser)
-	//if err != nil {
-	//	return errors.New("username not found")
-	//}
-	////修改信息
-	//for key, value := range info {
-	//	switch key {
-	//	case "nickname":
-	//		user.Nickname = value.(string)
-	//	case "introduction":
-	//		user.Introduction = value.(string)
-	//	case "telephone":
-	//		user.Telephone = value.(string)
-	//	case "qq":
-	//		user.QQ = value.(string)
-	//	case "gender":
-	//		user.Gender = value.(string)
-	//	case "email":
-	//		user.Email = value.(string)
-	//	case "birthday":
-	//		user.Birthday = value.(time.Time)
-	//	}
-	//}
 
-	err := db.Save(&user)
-	if err.Error != nil {
-		return err.Error
+	result := db.Model(user).Where(
+		"id = ? AND username = ? AND password=?", user.ID, user.Username, user.Password).Omit(
+		"id,password,username").Updates(user)
+
+	// 1. 处理数据库错误
+	if result.Error != nil {
+		return fmt.Errorf("数据库操作失败: %w", result.Error)
+	}
+
+	// 2. 处理无行更新的情况
+	if result.RowsAffected == 0 {
+		// 检查是否存在符合条件的用户（确认是密码错误还是数据未变更）
+		var exists bool
+		if err := db.Model(&model.User{}).
+			Select("count(*) > 0").
+			Where("user_id = ? AND password = ?", user.ID, user.Password).
+			Find(&exists).Error; err != nil {
+
+			return fmt.Errorf("failed to verify user existence: %w", err)
+		}
+
+		if !exists {
+			return fmt.Errorf("invalid credentials: user ID or username or password incorrect")
+		} else {
+			// 用户存在但数据未变更
+			return fmt.Errorf("no changes detected")
+		}
 	}
 
 	return nil

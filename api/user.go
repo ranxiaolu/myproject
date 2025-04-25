@@ -113,6 +113,7 @@ func ChangePassword(ctx context.Context, c *app.RequestContext) {
 	}
 	if err := c.BindJSON(&rep); err != nil {
 		c.JSON(400, map[string]string{"error": "参数错误" + err.Error()})
+		return
 	}
 	err := service.ChangePassword(rep.Username, rep.OldPassword, rep.NewPassword)
 	if err != nil {

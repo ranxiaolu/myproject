@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type Order struct {
 	gorm.Model
-	UserID     uint        `gorm:"index;notNull;foreignKey" json:"user_id"`
+	UserID     uint        `gorm:"index;notNull" json:"user_id"`
 	Address    string      `json:"address"`
 	TotalPrice float64     `json:"total"`
 	User       User        `gorm:"foreignKey:UserID"` // 关联用户模型

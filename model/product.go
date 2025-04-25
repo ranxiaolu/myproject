@@ -16,4 +16,5 @@ type Product struct {
 	Cover       string    `json:"cover"`
 	PublishTime time.Time `json:"publish_time"`
 	Link        string    `json:"link"`
+	Number      int       `json:"number"`
 }

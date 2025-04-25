@@ -38,6 +38,7 @@ func GetProductDetails(ctx context.Context, c *app.RequestContext) {
 	productID, err := strconv.ParseUint(productIDStr, 10, 64)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.H{"status": err.Error()})
+		return
 	}
 	product, err := service.GetProductDetails(uint(productID))
 	if err != nil {
@@ -78,6 +79,7 @@ func GetProductsByType(ctx context.Context, c *app.RequestContext) {
 	products, err := service.GetProductsByType(productType)
 	if err != nil {
 		c.JSON(400, utils.H{"info": "wrong"})
+		return
 	}
 	c.JSON(200, utils.H{"status": 10000, "info": "success", "data": utils.H{"products": products}})
 }
