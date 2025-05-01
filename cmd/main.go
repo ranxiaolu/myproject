@@ -9,11 +9,14 @@ import (
 	"log"
 	"myproject/api"
 	"myproject/dao"
+	"myproject/service"
 	//"myproject/middleware"
 )
 
 func main() {
 	dao.Init()
+	service.InitKafka()
+	go service.StartStockConsumer()
 	h := server.Default() // 创建engine
 
 	//初始日志，记录错误信息

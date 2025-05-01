@@ -30,7 +30,7 @@ func Router(h *server.Hertz) {
 	//获取购物车列表
 	h.GET("product/cart", middleware.AuthMiddleware(), GetCartList)
 	//获取商品详情
-	h.GET("product/info/:product_name", middleware.AuthMiddleware(), GetProductDetails)
+	h.GET("product/info/:product_id", middleware.AuthMiddleware(), GetProductDetails)
 	//通过商品标签获得商品详情
 	h.GET("product/:product_type", middleware.AuthMiddleware(), GetProductsByType)
 

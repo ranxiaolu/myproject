@@ -29,7 +29,7 @@ func CreateOrder(ctx context.Context, c *app.RequestContext) {
 
 	userID := orderData.UserID
 
-	var products []model.Product
+	var items []model.OrderItem
 	//orderData 中的产品列表，调用 services.GetProductDetails 获取每个产品的详细信息。
 	for _, item := range orderData.Products {
 		product, err := service.GetProductDetails(item.ID)
@@ -37,10 +37,14 @@ func CreateOrder(ctx context.Context, c *app.RequestContext) {
 			c.JSON(http.StatusInternalServerError, utils.H{"info": err.Error()})
 			return
 		}
-		products = append(products, product)
+		// 添加购物车
+		items = append(items, model.OrderItem{
+			ProductID: product.ID,
+			Quantity:  item.Number,
+		})
 	}
 	//将获取到的产品添加到 products 列表中。
-	orderID, err := service.CreateOrder(uint(userID), products)
+	orderID, err := service.CreateOrder(uint(userID), items)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.H{"info": err.Error()})
 		return

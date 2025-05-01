@@ -12,8 +12,8 @@ type Order struct {
 }
 type OrderItem struct {
 	gorm.Model
-	OrderID   uint    `gorm:"index;notNull"`
-	ProductID uint    `gorm:"index;notNull" json:"product_id"`
-	Product   Product `gorm:"foreignKey:ProductID"` // 关联产品模型
-	Quantity  int     `json:"quantity"`
+	OrderID   uint `gorm:"index;notNull"`
+	ProductID uint `gorm:"index;notNull" json:"product_id"`
+	//Product   Product `gorm:"foreignKey:ProductID"` // 关联产品模型
+	Quantity int `json:"quantity"`
 }

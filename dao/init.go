@@ -3,16 +3,16 @@ package dao
 import (
 	"context"
 	"fmt"
-	"github.com/redis/go-redis/v9"
+	"github.com/go-redis/redis/v8"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
 	"myproject/model"
 )
 
 var DB *gorm.DB
 var ctx = context.Background()
+var Redis *redis.Client // 添加全局Redis客户端，存储redis客户端实例
 
 func Init() {
 	dsn := "root:5201314@tcp(127.0.0.1:3306)/myshop?charset=utf8mb4&parseTime=True&loc=Local"
@@ -42,18 +42,44 @@ func Init() {
 	}
 	//检查 GORM 日志以获取详细错误信息：
 	DB.Logger = DB.Logger.LogMode(logger.Info)
-	// 连接 Redis
-	rdb := redis.NewClient(&redis.Options{ //创建 Redis 客户端
+
+	//// 连接 Redis
+	//rdb := redis.NewClient(&redis.Options{ //创建 Redis 客户端
+	//	Addr:     "localhost:6379",
+	//	Password: "",
+	//	DB:       0, // 使用默认的数据库
+	//})
+
+	//// Ping测试确保连接成功
+	//_, err = rdb.Ping(ctx).Result()
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	Redis = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
+		Password: "", // 如果 Redis 有密码需填写
+		DB:       0,
 	})
 
-	// 确保连接成功
-	_, err = rdb.Ping(ctx).Result()
-	if err != nil {
-		log.Fatal(err)
+	// 检查 Redis 连接
+	if _, err := Redis.Ping(ctx).Result(); err != nil {
+		panic("failed to connect redis: " + err.Error())
 	}
 
+	// 初始化库存缓存（服务启动时执行）
+	initStockCache()
 	fmt.Println("MySQL and Redis connected successfully!")
+
+}
+
+// initStockCache 将 MySQL 中的商品库存数据同步到 Redis 缓存中
+func initStockCache() {
+	var products []model.Product
+	if err := DB.Find(&products).Error; err == nil {
+
+		for _, p := range products {
+			// 使用set方法设置键及相应值
+			Redis.Set(ctx, fmt.Sprintf("stock:%d", p.ID), p.Number, 0) // 永久存储
+		}
+	}
 }

@@ -13,7 +13,7 @@ import (
 // GetProductList 获取商品列表
 func GetProductList(ctx context.Context, c *app.RequestContext) {
 
-	products, err := service.GetProducts()
+	products, err := service.GetProducts() //获取商品列表
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, utils.H{"status": err.Error()})
 		return

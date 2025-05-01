@@ -45,7 +45,7 @@ func RegisterUser(ctx context.Context, c *app.RequestContext) {
 func LoginUser(ctx context.Context, c *app.RequestContext) {
 
 	var user model.User
-	//收到一个包含 JSON 数据的 POST 请求时，使用 c.BindJSON 方法将请求体中的 JSON 数据解析到 User 结构体中
+	//收到一个包含 JSON 数据的 Get 请求时，使用 c.BindJSON 方法将请求体中的 JSON 数据解析到 User 结构体中
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, map[string]string{"error": "解析失败" + err.Error()})
 		return
