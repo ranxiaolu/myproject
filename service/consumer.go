@@ -9,7 +9,7 @@ import (
 	"myproject/model"
 )
 
-// StartStockConsumer 启动kafka消息队列生产者
+// StartStockConsumer 添加kafka消费者服务
 func StartStockConsumer() {
 	config := sarama.NewConfig()         //创建 Kafka 消费者配置对象
 	config.Consumer.Return.Errors = true //配置消费者返回错误信息，方便调试和处理异常
